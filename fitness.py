@@ -1,6 +1,6 @@
 import numpy as np
 import gymnasium as gym
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 env = None
 
@@ -63,22 +63,26 @@ class Agent:
         self.action[2] = (out[2] + 1.0) * 0.5  # braking (0, 1)
         return self.action
 
+TRIES = 2
+
+def _evaluate_impl(agent: Agent, tries: int):
+    total_reward = 0.0
+    state, _ = env.reset()
+    for _ in range(tries):
+        for _ in range(MAX_STEPS):
+            # state[pixels_x, pixels_y, :] = 255
+            # plt.imshow(state)
+            # plt.show()
+
+            action = agent.react(state)
+            state, reward, terminated, truncated, _ = env.step(action)
+            total_reward += reward
+
+            if terminated or truncated:
+                break
+    
+    return total_reward / tries
 
 def evaluate(genome):
     agent = Agent(genome)
-    total_reward = 0.0
-    state, _ = env.reset()
-
-    for _ in range(MAX_STEPS):
-        # state[pixels_x, pixels_y, :] = 255
-        # plt.imshow(state)
-        # plt.show()
-
-        action = agent.react(state)
-        state, reward, terminated, truncated, _ = env.step(action)
-        total_reward += reward
-
-        if terminated or truncated:
-            break
-
-    return total_reward,
+    return _evaluate_impl(agent, TRIES),
