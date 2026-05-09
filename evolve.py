@@ -58,8 +58,16 @@ def build_toolbox() -> base.Toolbox:
     toolbox.register("evaluate", fitness.evaluate)
     return toolbox
 
+SAVE_PERIOD = 5
 
 def evolve():
+    from pathlib import Path
+    from time import time
+    from time import gmtime, strftime
+    import pickle
+    time_ = strftime("%Y-%m-%d-%H-%M-%S", gmtime())
+    SAVE_DIR = Path(f"checkpoints/{time_}")
+    SAVE_DIR.mkdir(parents=True, exist_ok=True)
     random.seed(42)
     np.random.seed(42)
 
@@ -75,8 +83,15 @@ def evolve():
 
     with multiprocessing.Pool(processes=multiprocessing.cpu_count(), initializer=fitness.make_env) as pool:
         toolbox.register("map", pool.map)
-        pop, log = algorithms.eaMuPlusLambda(pop, toolbox, POP_SIZE, LAMBDA, CXPB,
-                                             MUTPB, N_GEN, stats, hof, verbose=True)
+        for i in range(N_GEN // SAVE_PERIOD):
+            pop, log = algorithms.eaMuPlusLambda(pop, toolbox, POP_SIZE, LAMBDA, CXPB,
+                                                MUTPB, SAVE_PERIOD, stats, hof, verbose=True)
+            
+            with open(SAVE_DIR / "best-ever.pkl", "wb") as f:
+                pickle.dump(hof[0], f)
+
+            with open(SAVE_DIR / f"epoch-pop-{i}.pkl", "wb") as f:
+                pickle.dump(pop, f)
 
 
 if __name__ == "__main__":
