@@ -1,6 +1,5 @@
 import numpy as np
 import gymnasium as gym
-import matplotlib.pyplot as plt
 
 env = None
 
@@ -16,16 +15,11 @@ def make_env():
 MAX_STEPS = 1000
 
 # we consider only green channel
-IM = 96
-MID = IM//2
 CHANNEL = 1
-PIXELS = [
-    (MID, MID),
-    (MID-10, MID),
-    (MID+10, MID),
-    (MID, MID-5),
-    (MID, MID+5),
-]
+
+# import "strategy" (which pixels the robot sees)
+from vision.cross import PIXELS
+
 pixels_x, pixels_y = zip(*PIXELS)
 
 # neural network
