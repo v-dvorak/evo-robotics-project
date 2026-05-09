@@ -2,6 +2,9 @@ import numpy as np
 import gymnasium as gym
 
 env = None
+tries = None
+
+SIZE_HIDDEN = 24
 
 
 def make_env():
@@ -24,7 +27,6 @@ pixels_x, pixels_y = zip(*PIXELS)
 
 # neural network
 SIZE_INPUT = len(PIXELS)
-SIZE_HIDDEN = 24
 
 param_shapes = [
     # hidden layer (weights & biases)
@@ -57,9 +59,9 @@ class Agent:
         self.action[2] = (out[2] + 1.0) * 0.5  # braking (0, 1)
         return self.action
 
-TRIES = 2
 
-def _evaluate_impl(agent: Agent, tries: int):
+def evaluate(genome):
+    agent = Agent(genome)
     total_reward = 0.0
     state, _ = env.reset()
     for _ in range(tries):
@@ -75,8 +77,4 @@ def _evaluate_impl(agent: Agent, tries: int):
             if terminated or truncated:
                 break
     
-    return total_reward / tries
-
-def evaluate(genome):
-    agent = Agent(genome)
-    return _evaluate_impl(agent, TRIES),
+    return total_reward / tries,
